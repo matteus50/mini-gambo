@@ -49,6 +49,7 @@ canvas {
   border-radius: 10px;
   margin-top: 10px;
 }
+#msgLogin { color: #ff4444; margin-top: 10px; }
 </style>
 </head>
 
@@ -65,7 +66,7 @@ canvas {
     <input id="senha" placeholder="Senha" type="password">
     <button onclick="entrar()">Entrar</button>
     <button onclick="criarConta()">Criar Conta</button>
-    <p id="msgLogin" style="color:#ff4444;"></p>
+    <p id="msgLogin"></p>
   </div>
 
   <!-- DASHBOARD -->
@@ -122,12 +123,16 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// Login / Logout
+// Funções de Login / Conta
 function criarConta(){
   const email = document.getElementById("email").value;
   const senha = document.getElementById("senha").value;
+  if(!email || !senha) { document.getElementById("msgLogin").innerText = "Digite email e senha!"; return; }
   createUserWithEmailAndPassword(auth, email, senha)
-    .then((userCredential)=>{ entrar(userCredential.user); })
+    .then((userCredential)=>{
+      document.getElementById("msgLogin").innerText = "Conta criada com sucesso!";
+      entrar(userCredential.user);
+    })
     .catch((error)=>{ document.getElementById("msgLogin").innerText = error.message; });
 }
 
@@ -135,6 +140,7 @@ function entrar(user=null){
   if(!user){
     const email = document.getElementById("email").value;
     const senha = document.getElementById("senha").value;
+    if(!email || !senha) { document.getElementById("msgLogin").innerText = "Digite email e senha!"; return; }
     signInWithEmailAndPassword(auth, email, senha)
       .catch((error)=>{ document.getElementById("msgLogin").innerText = error.message; });
   }
@@ -142,6 +148,7 @@ function entrar(user=null){
 
 function logout(){ signOut(auth); }
 
+// Observa mudanças no estado de autenticação
 onAuthStateChanged(auth, user=>{
   if(user){
     document.getElementById("login").classList.add("hidden");
